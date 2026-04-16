@@ -1,0 +1,71 @@
+{% extends "base_email.html" %}
+{% block content %}
+
+<div class="header">
+  <h1>📋 Daily Digest</h1>
+  <p>{{ data.date }} · Kevin Shih Job Application Bot</p>
+</div>
+
+<div class="body">
+
+  <!-- Stats -->
+  <table class="stats">
+    <tr>
+      <td><strong>{{ data.applied_today | length }}</strong><span>Applied Today</span></td>
+      <td><strong>{{ data.pending_confirmation | length }}</strong><span>Need Confirmation</span></td>
+      <td><strong>{{ data.total_applied }}</strong><span>Total Applied</span></td>
+      <td><strong>{{ data.total_interviewing }}</strong><span>Interviewing</span></td>
+    </tr>
+  </table>
+
+  <!-- Pending confirmation -->
+  {% if data.pending_confirmation %}
+  <div class="section-title">⏳ Awaiting Your Confirmation</div>
+  {% for app in data.pending_confirmation %}
+  <div class="job-row">
+    <strong>{{ app.job_title }}</strong> @ {{ app.company }}
+    <span class="score-badge score-{{ app.score_class }}" style="font-size:11px;">{{ app.match_score }}/100</span><br>
+    <a href="{{ dashboard_url }}/confirm/{{ app.id }}" style="color:#3498db; font-size:12px;">→ Review &amp; Confirm Application</a>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Applied today -->
+  {% if data.applied_today %}
+  <div class="section-title">✅ Applied Today</div>
+  {% for app in data.applied_today %}
+  <div class="job-row">
+    <strong>{{ app.job_title }}</strong> @ {{ app.company }}
+    <span class="score-badge score-{{ app.score_class }}" style="font-size:11px;">{{ app.match_score }}/100</span>
+    {% if app.cover_letter_snippet %}
+    <div style="margin-top:6px; font-size:12px; color:#555; font-style:italic;">
+      "{{ app.cover_letter_snippet }}..."
+    </div>
+    {% endif %}
+    <div style="margin-top:4px;">
+      <a href="{{ dashboard_url }}/applications/{{ app.id }}" style="color:#3498db; font-size:12px;">View details</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Skill gap alerts -->
+  {% if data.skill_gap_alerts %}
+  <div class="section-title">⚠️ Portfolio Gap Alerts</div>
+  {% for alert in data.skill_gap_alerts %}
+  <div class="alert-box">
+    <strong>{{ alert.job_title }} @ {{ alert.company }}</strong><br>
+    {{ alert.recommendation }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if not data.applied_today and not data.pending_confirmation %}
+  <p style="color:#888; text-align:center; padding: 20px 0;">No activity today — run <code>python main.py run</code> to search for new jobs.</p>
+  {% endif %}
+
+  <br>
+  <a href="{{ dashboard_url }}" class="btn">Open Dashboard</a>
+
+</div>
+{% endblock %}

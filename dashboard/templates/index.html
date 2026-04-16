@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<p class="page-title">Dashboard</p>
+
+<!-- Stats -->
+<div class="card-grid">
+  <div class="stat-card"><div class="num">{{ stats.total }}</div><div class="label">Total Applications</div></div>
+  <div class="stat-card"><div class="num" style="color:var(--green)">{{ stats.applied }}</div><div class="label">Applied</div></div>
+  <div class="stat-card"><div class="num" style="color:var(--accent)">{{ stats.interviewing }}</div><div class="label">Interviewing</div></div>
+  <div class="stat-card"><div class="num" style="color:var(--orange)">{{ stats.pending }}</div><div class="label">Awaiting Confirmation</div></div>
+  <div class="stat-card"><div class="num" style="color:var(--green)">{{ stats.offer }}</div><div class="label">Offers</div></div>
+</div>
+
+<!-- Pending confirmation -->
+{% if pending %}
+<div class="card">
+  <div class="section-title">⏳ Awaiting Your Confirmation</div>
+  {% for app in pending %}
+  <div style="display:flex; align-items:center; gap:12px; padding: 10px 0; border-bottom: 1px solid var(--border);">
+    <div style="flex:1;">
+      <strong>{{ app.job_title }}</strong> @ {{ app.company }}
+      <span class="score-pill score-{{ app.score_class }}" style="margin-left:8px;">{{ app.match_score }}/100</span>
+    </div>
+    <a href="/confirm/{{ app.id }}" class="btn btn-primary" style="font-size:12px; padding:6px 14px;">Review & Apply →</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Recent activity -->
+<div class="card">
+  <div class="section-title">Recent Activity</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Role</th><th>Company</th><th>Score</th><th>Status</th><th>Date</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in recent %}
+      <tr>
+        <td>{{ app.job_title }}</td>
+        <td>{{ app.company }}</td>
+        <td><span class="score-pill score-{{ app.score_class }}">{{ app.match_score or '—' }}</span></td>
+        <td><span class="badge badge-{{ app.status }}">{{ app.status }}</span></td>
+        <td style="color:var(--muted); font-size:12px;">{{ app.applied_at }}</td>
+        <td><a href="/applications/{{ app.id }}">View</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" style="color:var(--muted); text-align:center; padding:20px;">No applications yet. Run <code>python main.py run</code> to start.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+# Secrets & credentials
+.env
+
+# Personal data
+job_tracker.db
+playwright_data/
+output/
+assets/resume_base.md
+assets/resume_base.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db

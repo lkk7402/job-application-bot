@@ -1,0 +1,50 @@
+{% extends "base_email.html" %}
+{% block content %}
+
+<div class="header">
+  <h1>✅ Application Submitted</h1>
+  <p>{{ job_title }} @ {{ company }} · {{ now }}</p>
+</div>
+
+<div class="body">
+
+  <p>
+    Match Score: <span class="score-badge score-{{ score_class }}">{{ match_score }}/100</span>
+  </p>
+
+  <!-- Strengths & Gaps -->
+  <div class="section-title">Strengths Highlighted</div>
+  <div>
+    {% for s in strengths %}
+      <span class="tag">✓ {{ s }}</span>
+    {% endfor %}
+  </div>
+
+  {% if gaps %}
+  <div class="section-title">Gaps Noted</div>
+  <div>
+    {% for g in gaps %}
+      <span class="tag gap-tag">✗ {{ g }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if skill_gap_report %}
+  <div class="section-title">Portfolio Gap Alert</div>
+  <div class="alert-box">{{ skill_gap_report }}</div>
+  {% endif %}
+
+  <!-- Cover Letter (inline) -->
+  <div class="section-title">Cover Letter Sent</div>
+  <div class="cover-letter-box">{{ cover_letter_md }}</div>
+
+  <!-- PDFs note -->
+  <p style="font-size:12px; color:#888;">
+    📎 Tailored resume and cover letter PDFs are attached to this email.
+  </p>
+
+  <br>
+  <a href="{{ dashboard_url }}/applications/{{ app_id }}" class="btn">View in Dashboard</a>
+
+</div>
+{% endblock %}

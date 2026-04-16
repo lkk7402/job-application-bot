@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Job Tracker{% endblock %} — Kevin Shih</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">Kevin's Job Tracker</a>
+  <a href="/" {% if request.url.path == '/' %}class="active"{% endif %}>Dashboard</a>
+  <a href="/jobs" {% if '/jobs' in request.url.path %}class="active"{% endif %}>Scored Jobs</a>
+  <a href="/applications" {% if '/applications' in request.url.path %}class="active"{% endif %}>Applications</a>
+  <div class="spacer"></div>
+</nav>
+<div class="container">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

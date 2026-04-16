@@ -1,0 +1,153 @@
+{% extends "base_email.html" %}
+{% block content %}
+
+<div class="header">
+  <h1>🎯 Daily Apply Report</h1>
+  <p>{{ report.date }}</p>
+</div>
+
+<div class="body">
+
+  <!-- Filter stats summary -->
+  <table width="100%" cellpadding="6" cellspacing="6" style="margin-bottom:18px;">
+    <tr>
+      <td align="center" style="background:#d5f5e3; border-radius:6px; width:22%;">
+        <strong style="font-size:20px; color:#196f3d;">{{ report.grade_a | length }}</strong><br>
+        <span style="font-size:11px;">🟢 Grade A</span>
+      </td>
+      <td align="center" style="background:#d6eaf8; border-radius:6px; width:22%;">
+        <strong style="font-size:20px; color:#1a5276;">{{ report.grade_b | length }}</strong><br>
+        <span style="font-size:11px;">🔵 Grade B</span>
+      </td>
+      <td align="center" style="background:#fdebd0; border-radius:6px; width:22%;">
+        <strong style="font-size:20px; color:#784212;">{{ report.grade_c | length }}</strong><br>
+        <span style="font-size:11px;">🟡 Grade C</span>
+      </td>
+      <td align="center" style="background:#f0f0f0; border-radius:6px; width:22%;">
+        <strong style="font-size:20px; color:#555;">{{ report.stats.total_filtered }}</strong><br>
+        <span style="font-size:11px;">🚫 Filtered</span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Filter breakdown -->
+  <div style="font-size:12px; color:#888; margin-bottom:16px; padding:8px 12px; background:#fafafa; border-radius:4px;">
+    Scanned <strong>{{ report.stats.total_scraped }}</strong> jobs &nbsp;·&nbsp;
+    Blocked <strong>{{ report.stats.visa_blocked }}</strong> visa-ineligible &nbsp;·&nbsp;
+    Removed <strong>{{ report.stats.low_score_filtered }}</strong> low-score &nbsp;·&nbsp;
+    Found <strong>{{ report.stats.friendly_485_count }}</strong> 485-friendly
+  </div>
+
+  <!-- Market trends -->
+  {% if report.trends %}
+  <div class="section-title">📊 Market Trends (Today's New JDs)</div>
+  <div style="margin-bottom:16px;">
+    {% for t in report.trends %}
+    <span style="display:inline-block; background:#eaf3fb; border-radius:4px; padding:3px 10px; margin:3px; font-size:12px;">
+      <strong>{{ t.tech }}</strong> — {{ t.count }} job{{ 's' if t.count != 1 }}
+    </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Grade A jobs -->
+  {% if report.grade_a %}
+  <div class="section-title" style="color:#196f3d;">🟢 Grade A — Apply Today</div>
+  {% for job in report.grade_a %}
+  {{ _render_job(job) }}
+  {% endfor %}
+  {% endif %}
+
+  <!-- Grade B jobs -->
+  {% if report.grade_b %}
+  <div class="section-title" style="color:#1a5276; margin-top:20px;">🔵 Grade B — Strong Match</div>
+  {% for job in report.grade_b %}
+  {{ _render_job(job) }}
+  {% endfor %}
+  {% endif %}
+
+  <!-- Grade C jobs -->
+  {% if report.grade_c %}
+  <div class="section-title" style="color:#784212; margin-top:20px;">🟡 Grade C — Worth Considering</div>
+  {% for job in report.grade_c %}
+  {{ _render_job(job) }}
+  {% endfor %}
+  {% endif %}
+
+  {% if report.total_jobs == 0 %}
+  <p style="text-align:center; color:#888; padding:24px 0;">
+    No qualifying jobs found today.
+  </p>
+  {% else %}
+  <p style="font-size:11px; color:#aaa; margin-top:16px;">
+    Full report attached as Markdown · Click "Prepare Documents" to generate tailored resume + cover letter
+  </p>
+  {% endif %}
+
+  <br>
+  <a href="{{ dashboard_url }}" class="btn">Open Dashboard</a>
+
+</div>
+{% endblock %}
+
+{% macro _render_job(job) %}
+<div style="border:1px solid #e0e4ea; border-radius:6px; padding:14px; margin-bottom:10px;">
+
+  <!-- Header row -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:6px;">
+    <div>
+      <strong style="font-size:14px;">{{ job.title }}</strong>
+      {% if job.visa_485_friendly %}
+      <span style="background:#d5f5e3; color:#196f3d; font-size:10px; border-radius:3px; padding:1px 6px; margin-left:6px;">485-FRIENDLY</span>
+      {% endif %}
+      <br>
+      <span style="font-size:12px; color:#666;">{{ job.company }} &nbsp;·&nbsp; {{ job.location }}</span>
+    </div>
+    <span class="score-badge {% if job.score >= 85 %}score-high{% elif job.score >= 70 %}score-medium{% else %}score-low{% endif %}">
+      {{ job.score }}/100
+    </span>
+  </div>
+
+  <!-- Dimension mini-bars -->
+  <table width="100%" cellpadding="2" cellspacing="0" style="margin-top:10px; font-size:11px; color:#666;">
+    <tr>
+      <td width="30%">Tech {{ job.dim_tech }}%</td>
+      <td><div style="background:#e0e0e0; height:5px; border-radius:3px;"><div style="background:#3498db; width:{{ job.dim_tech }}%; height:5px; border-radius:3px;"></div></div></td>
+    </tr>
+    <tr>
+      <td>Commercial {{ job.dim_commercial }}%</td>
+      <td><div style="background:#e0e0e0; height:5px; border-radius:3px;"><div style="background:#27ae60; width:{{ job.dim_commercial }}%; height:5px; border-radius:3px;"></div></div></td>
+    </tr>
+    <tr>
+      <td>Experience {{ job.dim_experience }}%</td>
+      <td><div style="background:#e0e0e0; height:5px; border-radius:3px;"><div style="background:#f39c12; width:{{ job.dim_experience }}%; height:5px; border-radius:3px;"></div></div></td>
+    </tr>
+  </table>
+
+  <!-- Why apply -->
+  <div style="margin-top:10px; padding:8px 10px; background:#f8f9fa; border-radius:4px; font-size:12px; color:#333; font-style:italic;">
+    💡 {{ job.why_apply }}
+  </div>
+
+  <!-- Strengths -->
+  {% if job.strengths %}
+  <div style="margin-top:8px;">
+    {% for s in job.strengths[:3] %}
+    <span class="tag">✓ {{ s }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Salary -->
+  {% if job.salary and job.salary != 'Not listed' %}
+  <div style="font-size:12px; color:#777; margin-top:6px;">💰 {{ job.salary }}</div>
+  {% endif %}
+
+  <!-- Actions -->
+  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+    <a href="{{ dashboard_url }}/confirm/{{ job.id }}" class="btn" style="font-size:11px; padding:5px 12px;">Prepare Documents</a>
+    <a href="{{ job.url }}" style="font-size:11px; color:#3498db; padding:5px 0; text-decoration:none;">View Job ↗</a>
+  </div>
+
+</div>
+{% endmacro %}

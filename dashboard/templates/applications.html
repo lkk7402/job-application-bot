@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+
+<p class="page-title">All Applications</p>
+
+<!-- Filter bar -->
+<div style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">
+  {% for s in ['', 'awaiting_confirmation', 'applied', 'interviewing', 'offer', 'rejected', 'skipped', 'failed'] %}
+  <a href="/applications{% if s %}?status={{ s }}{% endif %}"
+     class="btn btn-outline {% if filter_status == s %}btn-primary{% endif %}"
+     style="font-size:12px; padding:5px 12px;">
+    {{ s if s else 'All' }}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Company</th><th>Source</th><th>Score</th><th>Status</th><th>Applied</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+      <tr>
+        <td><a href="{{ app.url }}" target="_blank">{{ app.job_title }}</a></td>
+        <td>{{ app.company }}</td>
+        <td style="color:var(--muted); font-size:12px;">{{ app.source }}</td>
+        <td><span class="score-pill score-{{ app.score_class }}">{{ app.match_score or '—' }}</span></td>
+        <td><span class="badge badge-{{ app.status }}">{{ app.status }}</span></td>
+        <td style="color:var(--muted); font-size:12px;">{{ app.applied_at }}</td>
+        <td><a href="/applications/{{ app.id }}">View</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" style="color:var(--muted); text-align:center; padding:20px;">No applications found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

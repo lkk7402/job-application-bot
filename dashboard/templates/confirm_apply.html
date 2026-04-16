@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Confirm Application{% endblock %}
+{% block content %}
+
+<div class="card" style="border-top: 4px solid var(--accent);">
+  <h2 style="font-size:17px; margin-bottom:6px;">Review Before Applying</h2>
+  <p style="color:var(--muted);">
+    <strong>{{ app.job_title }}</strong> @ {{ app.company }} · {{ app.location }}
+  </p>
+  <div style="margin-top:10px;">
+    <span class="score-pill score-{{ app.score_class }}" style="font-size:14px; padding:4px 12px;">{{ app.match_score or '—' }}/100 Match</span>
+    <a href="{{ app.url }}" target="_blank" style="margin-left:12px; color:var(--accent); font-size:13px;">View Job Posting ↗</a>
+  </div>
+</div>
+
+<div class="confirm-split">
+  <!-- Strengths / Gaps -->
+  <div class="card">
+    <div class="section-title">✅ Strengths</div>
+    {% for s in app.strengths %}<span class="tag">{{ s }}</span>{% endfor %}
+    {% if not app.strengths %}<span style="color:var(--muted);">—</span>{% endif %}
+
+    <div class="section-title" style="margin-top:14px;">⚠️ Gaps</div>
+    {% for g in app.gaps %}<span class="tag tag-gap">{{ g }}</span>{% endfor %}
+    {% if not app.gaps %}<span style="color:var(--muted);">None identified</span>{% endif %}
+
+    {% if app.recommendation %}
+    <div class="alert-box" style="margin-top:12px;">💡 {{ app.recommendation }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Documents -->
+  <div class="card">
+    <div class="section-title">Documents</div>
+    {% if app.resume_path %}
+    <p><a href="/files/resume/{{ app.id }}" class="btn btn-outline" style="font-size:12px;">📄 Download Tailored Resume</a></p>
+    {% endif %}
+    {% if app.cover_letter_path %}
+    <p style="margin-top:8px;"><a href="/files/cover/{{ app.id }}" class="btn btn-outline" style="font-size:12px;">📄 Download Cover Letter</a></p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Cover letter preview -->
+{% if app.cover_letter_md %}
+<div class="card">
+  <div class="section-title">Cover Letter Preview</div>
+  <div class="cover-box">{{ app.cover_letter_md }}</div>
+</div>
+{% endif %}
+
+<!-- Action buttons -->
+<div class="card" style="display:flex; gap:14px; justify-content:flex-end;">
+  <form method="post" action="/applications/{{ app.id }}/skip">
+    <button class="btn btn-outline">✕ Skip This Job</button>
+  </form>
+  <form method="post" action="/applications/{{ app.id }}/confirm">
+    <button class="btn btn-primary" style="font-size:14px; padding:10px 24px;">✓ Confirm & Apply</button>
+  </form>
+</div>
+
+{% endblock %}

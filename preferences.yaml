@@ -1,0 +1,52 @@
+job_titles:
+  - "Software Developer"
+  - "Full Stack Developer"
+  - "Junior Software Developer"
+  - "Graduate Developer"
+  - "Software Engineer"
+  - "Junior Software Engineer"
+  - "Backend Developer"
+  - "Python Developer"
+  - "Web Developer"
+  - "Junior Web Developer"
+  - "Node.js Developer"
+  - "TypeScript Developer"
+  - "React Developer"
+  - "Junior Developer"
+  - "Graduate Software Engineer"
+
+locations:
+  - "Melbourne VIC"
+  - "Melbourne CBD"
+  - "Remote"
+  - "Hybrid Melbourne"
+
+salary_min: 65000
+salary_currency: "AUD"
+
+keywords_required: []
+
+keywords_excluded:
+  - "10+ years"
+  - "Senior Principal"
+  - "Lead Architect"
+  - "PHP"
+  - "WordPress"
+  - "Internship"
+  - "Unpaid"
+  - "Commission only"
+
+job_types:
+  - "Full-time"
+  - "Contract"
+  - "Casual"
+
+experience_years_max: 5
+
+sites:
+  linkedin: true
+  seek: true
+  indeed: false
+
+# How many days back to search
+days_back: 3
