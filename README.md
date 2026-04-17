@@ -1,57 +1,76 @@
 # Job Application Bot
 
-An autonomous job search pipeline that scrapes LinkedIn and Seek, scores every listing against your resume using Claude AI, then generates a tailored resume and cover letter for the roles worth pursuing.
+> Autonomous job search pipeline — scrapes LinkedIn & Seek, scores every listing with Claude AI, tailors your resume and cover letter, tracks everything in a dashboard.
+
+![Dashboard](assets/screenshot_jobs.png)
 
 ---
 
-## What it does
+## How it works
 
 ```
-Run once daily (or on a schedule)
-        │
-        ▼
-┌───────────────────┐     ┌──────────────────────┐
-│  Search           │────▶│  Score (Claude AI)    │
-│  LinkedIn + Seek  │     │  A–F grade, 0–100 pts │
-│  Playwright       │     │  10 weighted dims     │
-└───────────────────┘     └──────────┬───────────┘
-                                     │
-              ┌──────────────────────┘
-              ▼
-┌─────────────────────────────────────────────────┐
-│  Dashboard  (FastAPI)                           │
-│  Browse all scored jobs · filter by grade       │
-│  Click "Prepare Docs" on any role               │
-└──────────────────┬──────────────────────────────┘
-                   │
-                   ▼
-     ┌─────────────────────────┐
-     │  Tailor (Claude AI)     │
-     │  • Tailored resume PDF  │
-     │  • Cover letter PDF     │
-     └─────────────┬───────────┘
-                   │
-                   ▼
-     ┌─────────────────────────┐
-     │  Apply (Playwright)     │
-     │  LinkedIn Easy Apply /  │
-     │  Seek — pauses for your │
-     │  confirmation first     │
-     └─────────────────────────┘
+┌─────────────────────┐
+│   Search            │  Playwright scrapes LinkedIn + Seek
+│   LinkedIn + Seek   │  Human-like behaviour, persistent sessions
+└────────┬────────────┘
+         │ 200+ listings/run
+         ▼
+┌─────────────────────┐
+│   Score             │  Claude AI grades each job A–F
+│   Claude AI         │  10 weighted dimensions: tech, seniority,
+│                     │  visa, salary, company, culture...
+└────────┬────────────┘
+         │ ranked shortlist
+         ▼
+┌─────────────────────┐
+│   Dashboard         │  FastAPI web UI — browse, filter by grade,
+│   FastAPI           │  review scores, trigger document prep
+└────────┬────────────┘
+         │ one click
+         ▼
+┌─────────────────────┐
+│   Tailor            │  Claude rewrites your resume + cover letter
+│   Claude AI         │  specifically for each job description
+└────────┬────────────┘
+         │ you review first
+         ▼
+┌─────────────────────┐
+│   Apply             │  Playwright fills the application form,
+│   Playwright        │  pauses — you confirm before anything submits
+└─────────────────────┘
 ```
+
+---
+
+## Screenshots
+
+### Scored Jobs Dashboard
+
+![Scored Jobs](assets/screenshot_jobs.png)
+
+### Daily Apply Report
+
+![Daily Report](assets/screenshot_report.png)
+
+### Overview
+
+![Dashboard Home](assets/screenshot_dashboard.png)
 
 ---
 
 ## Features
 
-- **Multi-source scraping** — LinkedIn and Seek.com.au via Playwright with human-like behaviour (gradual scrolling, mouse movement, randomised delays) to avoid bot detection
-- **AI scoring** — Claude grades every job A–F across 10 dimensions: tech stack, seniority, location, visa friendliness, company quality, salary, growth, culture, commercial fit, and role clarity
-- **Smart filtering** — auto-filters visa-blocked roles, keyword exclusions, and low-match scores
-- **Tailored documents** — per-job resume and cover letter rewritten by Claude to match the specific JD
-- **Application dashboard** — FastAPI web UI to browse scored jobs, review tailored docs, and trigger applications
-- **Confirmation gate** — Playwright fills the entire form then pauses; you review and confirm before anything is submitted
-- **Email notifications** — daily digest + per-application confirmation via Gmail
-- **Scheduler** — APScheduler runs the full pipeline daily at 7am, digest at 8pm
+| Feature | Detail |
+|---------|--------|
+| **Multi-source scraping** | LinkedIn + Seek.com.au via Playwright with anti-bot evasion |
+| **AI grading** | Claude scores each job 0–100 across 10 dimensions, grades A–F |
+| **Smart filtering** | Auto-removes visa-blocked roles, keyword exclusions, low scores |
+| **Document tailoring** | Per-job resume + cover letter rewritten by Claude to match the JD |
+| **Application dashboard** | FastAPI web UI — browse all scored jobs, filter by grade, one-click prep |
+| **Confirmation gate** | Playwright fills the form then pauses — you always review before submit |
+| **Daily digest email** | Report emailed every morning with top-ranked jobs |
+| **24/7 scheduler** | APScheduler runs search at 7am, digest at 8pm — fully autonomous |
+| **Portfolio generation** | Claude designs a matching side project, pushed to GitHub automatically |
 
 ---
 
@@ -59,14 +78,15 @@ Run once daily (or on a schedule)
 
 | Layer | Technology |
 |-------|-----------|
-| Scraping | Playwright (persistent browser context) |
+| Scraping | Playwright (persistent browser context, slow_mo, human delays) |
 | AI | Anthropic Claude API (`claude-opus-4-5`) |
 | Backend | FastAPI + SQLAlchemy + SQLite |
-| Frontend | Jinja2 templates + vanilla CSS |
-| PDF | xhtml2pdf |
+| Frontend | Jinja2 templates |
+| PDF generation | xhtml2pdf |
 | Scheduling | APScheduler |
-| Notifications | smtplib / Gmail |
+| Notifications | smtplib / Gmail SMTP |
 | Portfolio | GitHub REST API |
+| CLI | Click |
 
 ---
 
@@ -79,14 +99,14 @@ job-application-bot/
 ├── preferences.yaml         # Job titles, locations, keywords, salary
 │
 ├── search/
-│   ├── base.py              # BaseScraper with human-like helpers
+│   ├── base.py              # BaseScraper — human-like helpers (gradual scroll, mouse move)
 │   ├── linkedin.py          # LinkedIn Playwright scraper
 │   ├── seek.py              # Seek.com.au Playwright scraper
-│   └── aggregator.py        # Orchestrates scrapers, deduplicates, saves
+│   └── aggregator.py        # Orchestrates scrapers, deduplicates, saves to DB
 │
 ├── match/
-│   ├── scorer.py            # Claude: score + grade each job
-│   └── reporter.py          # Generate daily markdown + email report
+│   ├── scorer.py            # Claude: score + grade each job (10 dimensions)
+│   └── reporter.py          # Generate daily markdown report + email digest
 │
 ├── tailor/
 │   ├── resume.py            # Claude: rewrite resume for role → PDF
@@ -94,10 +114,10 @@ job-application-bot/
 │
 ├── apply/
 │   ├── linkedin.py          # Playwright: fill LinkedIn Easy Apply
-│   └── seek.py              # Playwright: fill Seek application
+│   └── seek.py              # Playwright: fill Seek application form
 │
 ├── dashboard/
-│   ├── app.py               # FastAPI app + all routes
+│   ├── app.py               # FastAPI routes
 │   ├── static/style.css
 │   └── templates/           # Jinja2 HTML pages
 │
@@ -107,11 +127,38 @@ job-application-bot/
 │
 ├── portfolio/
 │   ├── generator.py         # Claude: design + generate project code
-│   └── github_pusher.py     # GitHub REST API: create repo + push
+│   └── github_pusher.py     # GitHub REST API: create repo + push files
 │
 └── scheduler/
     └── jobs.py              # APScheduler daily jobs
 ```
+
+---
+
+## Scoring System
+
+Each job is scored 0–100 across 10 weighted dimensions:
+
+- Tech stack alignment
+- Seniority / experience level fit
+- Location (on-site / hybrid / remote)
+- Visa eligibility (485, TSS, PR requirement)
+- Salary range
+- Company quality & growth potential
+- Commercial domain fit
+- Role clarity
+- Culture signals
+- Career progression opportunity
+
+| Grade | Score | Action |
+|-------|-------|--------|
+| A | 85–100 | Apply today |
+| B | 70–84 | Strong match |
+| C | 50–69 | Worth considering |
+| D | 35–49 | Weak match |
+| F | < 35 | Auto-filtered out |
+
+Visa-blocked roles (citizenship / PR required) are flagged and excluded. 485-friendly roles are highlighted.
 
 ---
 
@@ -137,7 +184,9 @@ Edit `preferences.yaml` — job titles, locations, salary minimum, excluded keyw
 
 ### 4. Add your resume
 
-Place your master resume at `assets/resume_base.md`.
+```
+assets/resume_base.md   ← your master resume in Markdown
+```
 
 ### 5. Login to LinkedIn
 
@@ -149,69 +198,37 @@ python main.py login linkedin
 ### 6. Run
 
 ```bash
-# One-off search + score + report
+# Full pipeline: search → score → report
 python main.py run
 
 # Start the dashboard
 python main.py dashboard
 # → http://localhost:8001
 
-# Run 24/7 on a schedule
+# 24/7 scheduled mode
 python main.py scheduler
 ```
 
 ---
 
-## CLI Commands
+## CLI Reference
 
 | Command | Description |
 |---------|-------------|
 | `python main.py run` | Full pipeline: search → score → report |
 | `python main.py search-only` | Scrape only, no scoring |
 | `python main.py report` | Regenerate today's report from DB |
-| `python main.py prepare <job_id>` | Tailor resume + cover letter for a job |
-| `python main.py dashboard` | Start web dashboard |
+| `python main.py prepare <job_id>` | Tailor resume + cover letter for a specific job |
+| `python main.py dashboard` | Start web dashboard (http://localhost:8001) |
 | `python main.py scheduler` | Start 24/7 scheduled runner |
-| `python main.py login linkedin` | Save LinkedIn session |
-| `python main.py digest` | Send daily digest email manually |
+| `python main.py login linkedin` | Save LinkedIn session interactively |
+| `python main.py digest` | Trigger daily digest email manually |
 
 ---
 
-## Scoring System
+## Key Design Decisions
 
-Each job is scored 0–100 across 10 dimensions and assigned a grade:
-
-| Grade | Score | Action |
-|-------|-------|--------|
-| A | 85–100 | Apply today |
-| B | 70–84 | Strong match |
-| C | 50–69 | Worth considering |
-| D | 35–49 | Weak match |
-| F | 0–34 | Auto-filtered |
-
-Visa-blocked roles (requiring permanent residency or citizenship) are flagged and excluded from the report. 485-visa-friendly roles are highlighted.
-
----
-
-## Environment Variables
-
-See `.env.example` for the full list. Key variables:
-
-```
-ANTHROPIC_API_KEY=        # Claude API key
-GMAIL_ADDRESS=            # Sender email
-GMAIL_APP_PASSWORD=       # Gmail App Password (not account password)
-GITHUB_TOKEN=             # For portfolio project creation
-GITHUB_USERNAME=
-NOTIFY_EMAIL=             # Where to send reports
-MIN_MATCH_SCORE=50        # Filter threshold
-MAX_APPLICATIONS_PER_RUN=10
-```
-
----
-
-## Notes
-
-- **No auto-submit** — the bot always pauses before submitting any application. You review first.
-- **Secrets excluded** — `.env`, `playwright_data/`, `job_tracker.db`, and resume files are all in `.gitignore`
-- **Windows compatible** — uses xhtml2pdf instead of WeasyPrint; UTF-8 stdout configured at startup
+- **No auto-submit** — the bot always pauses before submitting. You review every application.
+- **Human-like scraping** — gradual scrolling, randomised mouse movement, `slow_mo=50`, persistent browser sessions to avoid bot detection.
+- **Secrets excluded** — `.env`, `playwright_data/`, `job_tracker.db`, and resume files are all gitignored.
+- **Windows compatible** — xhtml2pdf instead of WeasyPrint; UTF-8 stdout configured at startup.
