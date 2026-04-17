@@ -82,7 +82,7 @@
 | AI | Anthropic Claude API (`claude-opus-4-5`) |
 | Backend | FastAPI + SQLAlchemy + SQLite |
 | Frontend | Jinja2 templates |
-| PDF generation | xhtml2pdf |
+| PDF generation | LaTeX / pdflatex (MiKTeX) — tailored resumes output as `.tex` + compiled PDF |
 | Scheduling | APScheduler |
 | Notifications | smtplib / Gmail SMTP |
 | Portfolio | GitHub REST API |

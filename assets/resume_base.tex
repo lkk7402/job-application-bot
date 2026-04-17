@@ -1,0 +1,190 @@
+%-------------------------
+% Kevin Shih Resume — LaTeX source
+% Compile with: pdflatex resume_base.tex
+% Or paste into https://overleaf.com
+%-------------------------
+
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{multicol}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+
+\newcommand{\resumeItem}[1]{
+  \item\small{#1 \vspace{-2pt}}
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+  \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+\begin{document}
+
+%---------- HEADING ----------
+\begin{center}
+  {\Huge \scshape Kevin Shih (Chun-Yu)} \\ \vspace{4pt}
+  \small Melbourne CBD, VIC 3000 $|$
+  0422 222 489 $|$
+  \href{mailto:KevinShih@lkk7402.com}{\underline{KevinShih@lkk7402.com}} $|$
+  \href{https://linkedin.com/in/kevin-shih-590425266}{\underline{linkedin.com/in/kevin-shih-590425266}} $|$
+  \href{https://github.com/lkk7402}{\underline{github.com/lkk7402}}
+\end{center}
+
+\vspace{-6pt}
+\begin{center}
+  \small\textit{Full-stack developer with hands-on experience building and deploying production-ready AI-powered
+  applications. Proven ability to work independently across the full stack — from REST APIs and databases to CI/CD
+  pipelines and cloud deployments. Building production AI systems and seeking a junior/mid role to scale that impact.}
+\end{center}
+
+%---------- ACS ----------
+\section{ACS Skills Assessment (April 2025)}
+Positive assessment as \textbf{Software Engineer} (261313) and \textbf{Analyst Programmer} (261311) — eligible to work in Australia on a 485 Graduate visa.
+
+%---------- EXPERIENCE ----------
+\section{Professional Experience}
+\resumeSubHeadingListStart
+
+  \resumeSubheading
+    {Full-Stack Web Developer}{Sep -- Dec 2024 (4 months)}
+    {ACS Professional Year Program in ICT --- Work Integrated Learning, Australian Computer Society}{}
+    \resumeItemListStart
+      \resumeItem{Collaborated in a 4-person team to deliver a full-stack web application, practising Agile methodologies (daily standups, sprint planning) in a professional ICT environment}
+      \resumeItem{Completed the work-integrated learning component of the Professional Year Program --- a visa-required bridging program for international graduates in Australia}
+    \resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+%---------- PROJECTS ----------
+\section{Key Projects}
+\resumeSubHeadingListStart
+
+  \resumeProjectHeading
+    {\textbf{Job Application Bot} $|$ \emph{Python $\cdot$ FastAPI $\cdot$ Playwright $\cdot$ Claude API $\cdot$ SQLAlchemy $\cdot$ APScheduler} $|$ \href{https://github.com/lkk7402/job-application-bot}{\underline{GitHub}}}{}
+    \resumeItemListStart
+      \resumeItem{Engineered end-to-end autonomous pipeline that scrapes LinkedIn and Seek.com.au using Playwright with human-like anti-bot evasion (gradual scrolling, randomised mouse movement, persistent browser sessions), processing 200+ job listings per run}
+      \resumeItem{Built Claude AI scoring engine that grades every job A--F across 10 weighted dimensions (tech stack, seniority, visa eligibility, salary, company quality) and generates personalised rationale for each score}
+      \resumeItem{Designed FastAPI dashboard with SQLAlchemy/SQLite backend for browsing scored jobs, triggering per-job resume and cover letter tailoring via Claude API, and reviewing applications before submission}
+      \resumeItem{Implemented full async pipeline with APScheduler for 24/7 autonomous operation, Gmail SMTP notifications, and GitHub REST API integration for automated portfolio project creation}
+    \resumeItemListEnd
+
+  \resumeProjectHeading
+    {\textbf{Smart AI API} $|$ \emph{Python $\cdot$ FastAPI $\cdot$ PostgreSQL $\cdot$ Docker $\cdot$ JWT $\cdot$ pytest} $|$ \href{https://github.com/lkk7402/smart-ai-api}{\underline{GitHub}}}{}
+    \resumeItemListStart
+      \resumeItem{Built production-grade AI microservice with JWT authentication, per-user rate limiting (10 req/min), and PostgreSQL database integration using SQLAlchemy ORM}
+      \resumeItem{Developed AI-powered endpoints for text summarization, multi-turn conversational chat, and sentiment analysis using Groq API (Llama 3.1 8B model)}
+      \resumeItem{Created full Docker containerisation with docker-compose, deployed with CI/CD pipeline via GitHub Actions, achieving 80\%+ test coverage with 15 pytest tests}
+    \resumeItemListEnd
+
+  \resumeProjectHeading
+    {\textbf{Job Application Tracker} $|$ \emph{Next.js 16 $\cdot$ TypeScript $\cdot$ PostgreSQL $\cdot$ Prisma $\cdot$ Tailwind CSS $\cdot$ Jest} $|$ \href{https://github.com/lkk7402/job-tracker}{\underline{GitHub}}}{}
+    \resumeItemListStart
+      \resumeItem{Developed full-stack kanban board with drag-and-drop functionality for tracking job applications across four workflow stages (Applied, Interview, Offer, Rejected)}
+      \resumeItem{Implemented Next.js 16 Server Actions with App Router, eliminating the need for a separate API layer while maintaining type-safe database operations through Prisma ORM}
+      \resumeItem{Built comprehensive test suite with Jest and React Testing Library (7 unit tests + 7 component tests), deployed to Vercel with automated GitHub Actions CI/CD pipeline}
+    \resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+%---------- EDUCATION ----------
+\section{Education}
+\resumeSubHeadingListStart
+
+  \resumeSubheading
+    {The University of Melbourne}{2019 -- 2023}
+    {Bachelor of Science --- Computing and Software Systems}{}
+
+  \resumeSubheading
+    {Performance Education, Melbourne}{2023 -- 2025}
+    {Professional Year Program in ICT}{}
+
+\resumeSubHeadingListEnd
+
+%---------- SKILLS ----------
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+  \small{\item{
+    \textbf{Languages}{: JavaScript, TypeScript, Python, Java, C} \\
+    \textbf{Backend \& APIs}{: Node.js, Express.js, FastAPI, Next.js Server Actions, RESTful APIs, GraphQL basics} \\
+    \textbf{Databases}{: PostgreSQL, MongoDB, Prisma ORM, SQLAlchemy, database design} \\
+    \textbf{Frontend}{: React, Next.js 16 (App Router \& Server Components), Tailwind CSS, Streamlit, responsive design} \\
+    \textbf{DevOps \& Tools}{: Docker, docker-compose, Git/GitHub, CI/CD (GitHub Actions), Vercel, Render.com, Neon} \\
+    \textbf{Testing \& Quality}{: Jest, React Testing Library, pytest, unit testing, integration testing, TDD principles} \\
+    \textbf{AI/ML}{: Groq API, Claude API, LLM integration, prompt engineering, AI application development} \\
+    \textbf{English Proficiency}{: PTE Academic 83 (all bands $\geq$80) --- Professional working proficiency}
+  }}
+\end{itemize}
+
+%---------- EMPLOYMENT ----------
+\section{Employment History}
+\resumeSubHeadingListStart
+
+  \resumeSubheading
+    {Sole Trader --- Sneaker Reseller \& Consignment Shop}{Feb 2021 -- Present}
+    {Melbourne, VIC}{}
+    \resumeItemListStart
+      \resumeItem{Managed all business operations independently including stock procurement, pricing strategy, and customer relations across online and in-person channels}
+      \resumeItem{Scaled business to \$300,000+ annual revenue with \$100,000+ net profit, applying data-driven decision making and rapidly adapting to market trends}
+      \resumeItem{Developed strong self-management, negotiation, and customer relationship skills while running all operations independently}
+    \resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+\end{document}

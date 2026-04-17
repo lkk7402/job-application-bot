@@ -1,6 +1,12 @@
 # Secrets & credentials
 .env
 
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+assets/*.pdf
+
 # Personal data
 job_tracker.db
 playwright_data/
