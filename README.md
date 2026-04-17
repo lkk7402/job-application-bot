@@ -44,17 +44,18 @@
 
 ## Screenshots
 
-### Scored Jobs Dashboard
+### Dashboard — Live Overview
+Real application tracking with confirmation queue, scores, and recent activity.
+
+![Dashboard Home](assets/screenshot_dashboard.png)
+
+### Scored Jobs — Browse & Filter by Grade
 
 ![Scored Jobs](assets/screenshot_jobs.png)
 
 ### Daily Apply Report
 
 ![Daily Report](assets/screenshot_report.png)
-
-### Overview
-
-![Dashboard Home](assets/screenshot_dashboard.png)
 
 ---
 
