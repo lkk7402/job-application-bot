@@ -46,7 +46,7 @@ experience_years_max: 5
 sites:
   linkedin: true
   seek: true
-  indeed: false
+  indeed: true
 
 # How many days back to search
-days_back: 3
+days_back: 10

@@ -13,6 +13,7 @@ from db.models import Job, SearchRun
 from search.base import RawJob
 from search.linkedin import LinkedInScraper
 from search.seek import SeekScraper
+from search.indeed import IndeedScraper
 
 
 class JobAggregator:
@@ -70,6 +71,20 @@ class JobAggregator:
                 seek_scraper = SeekScraper(seek_context)
                 tasks.append(("seek", seek_context, seek_scraper))
                 sources_used.append("seek")
+
+            if self.prefs.get("sites", {}).get("indeed", False):
+                indeed_context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(PLAYWRIGHT_DATA_DIR / "indeed"),
+                    headless=True,
+                    user_agent=(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/124.0.0.0 Safari/537.36"
+                    ),
+                )
+                indeed_scraper = IndeedScraper(indeed_context)
+                tasks.append(("indeed", indeed_context, indeed_scraper))
+                sources_used.append("indeed")
 
             # Run all scrapers concurrently per job title
             coroutines = []
