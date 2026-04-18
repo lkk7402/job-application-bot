@@ -88,12 +88,18 @@ class JobAggregator:
 
             # Run scrapers one site at a time — concurrent within a site,
             # but sequential across sites to avoid browser context crashes
+            # Indeed gets more results per query (50) and a broader catch-all query
             for name, ctx, scraper in tasks:
+                max_per_query = 50 if name == "indeed" else 25
+                titles = self.prefs.get("job_titles", [])[:6]
+                # Add broad catch-all for Indeed to surface jobs missed by specific titles
+                if name == "indeed":
+                    titles = titles + ["developer", "software engineer"]
                 coroutines = []
-                for title in self.prefs.get("job_titles", [])[:6]:
+                for title in titles:
                     for location in self.prefs.get("locations", ["Melbourne VIC"])[:2]:
                         coroutines.append(
-                            self._safe_search(scraper, name, title, location, 25)
+                            self._safe_search(scraper, name, title, location, max_per_query)
                         )
                 results = await asyncio.gather(*coroutines)
                 for batch in results:
