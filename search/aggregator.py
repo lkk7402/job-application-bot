@@ -86,21 +86,18 @@ class JobAggregator:
                 tasks.append(("indeed", indeed_context, indeed_scraper))
                 sources_used.append("indeed")
 
-            # Run all scrapers concurrently per job title
-            coroutines = []
+            # Run scrapers one site at a time — concurrent within a site,
+            # but sequential across sites to avoid browser context crashes
             for name, ctx, scraper in tasks:
-                for title in self.prefs.get("job_titles", [])[:6]:  # top 6 titles
+                coroutines = []
+                for title in self.prefs.get("job_titles", [])[:6]:
                     for location in self.prefs.get("locations", ["Melbourne VIC"])[:2]:
                         coroutines.append(
                             self._safe_search(scraper, name, title, location, 25)
                         )
-
-            results = await asyncio.gather(*coroutines)
-            for batch in results:
-                all_raw.extend(batch)
-
-            # Close all contexts
-            for _, ctx, _ in tasks:
+                results = await asyncio.gather(*coroutines)
+                for batch in results:
+                    all_raw.extend(batch)
                 await ctx.close()
 
         if verbose:
