@@ -2,6 +2,27 @@
 {% block title %}Scored Jobs{% endblock %}
 {% block content %}
 
+<!-- JD Drawer -->
+<div id="jd-overlay" onclick="closeDrawer()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:100; backdrop-filter:blur(2px);"></div>
+<div id="jd-drawer" style="display:none; position:fixed; top:0; right:0; width:min(560px,96vw); height:100vh; background:#fff; border-left:1px solid var(--border); box-shadow:-8px 0 32px rgba(0,0,0,0.12); z-index:101; overflow-y:auto; box-sizing:border-box; display:flex; flex-direction:column;">
+  <!-- Sticky header -->
+  <div style="position:sticky; top:0; background:#fff; border-bottom:1px solid var(--border); padding:20px 24px 16px; z-index:1;">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+      <div style="flex:1; min-width:0;">
+        <div id="drawer-title" style="font-size:16px; font-weight:700; color:var(--primary); margin-bottom:3px; line-height:1.3;"></div>
+        <div id="drawer-meta" style="font-size:13px; color:var(--muted);"></div>
+      </div>
+      <button onclick="closeDrawer()" style="background:none; border:1px solid var(--border); color:var(--muted); font-size:18px; cursor:pointer; padding:2px 10px; border-radius:5px; line-height:1.4; flex-shrink:0;">&times;</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;">
+      <div id="drawer-salary" style="font-size:13px; font-weight:600; color:var(--green);"></div>
+      <a id="drawer-link" href="#" target="_blank" class="btn btn-primary" style="font-size:12px; padding:5px 14px;">View on Job Board ↗</a>
+    </div>
+  </div>
+  <!-- Scrollable body -->
+  <div id="drawer-body" style="padding:24px; font-size:13.5px; color:var(--text); line-height:1.75; flex:1;"></div>
+</div>
+
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
   <p class="page-title" style="margin:0;">Scored Jobs</p>
   <div style="display:flex; gap:8px; align-items:center;">
@@ -72,13 +93,11 @@
       </div>
       <!-- Actions -->
       <div style="display:flex; flex-direction:column; gap:6px; min-width:110px; align-items:flex-end;">
-        <a href="{{ j.url }}" target="_blank" class="btn" style="font-size:12px; padding:5px 12px; width:100%; text-align:center;">View Job</a>
+        <button onclick="openDrawer({{ j.id }})" class="btn" style="font-size:12px; padding:5px 12px; width:100%; text-align:center;">Read JD</button>
         {% if j.app_id %}
         <a href="/applications/{{ j.app_id }}" class="btn btn-primary" style="font-size:12px; padding:5px 12px; width:100%; text-align:center;">View Docs</a>
         {% else %}
-        <form method="post" action="/jobs/{{ j.id }}/prepare" style="width:100%;">
-          <button type="submit" class="btn btn-primary" style="font-size:12px; padding:5px 12px; width:100%;">Prepare Docs</button>
-        </form>
+        <button id="prepare-btn-{{ j.id }}" onclick="prepareDocs({{ j.id }}, this)" class="btn btn-primary" style="font-size:12px; padding:5px 12px; width:100%;">Prepare Docs</button>
         {% endif %}
       </div>
     </div>
@@ -87,5 +106,113 @@
 </div>
 {% endif %}
 {% endfor %}
+
+<script>
+// ── JD Drawer ──────────────────────────────────────────────
+function formatJD(text) {
+  // Convert plain text JD into readable HTML
+  const lines = text.split('\n');
+  let html = '';
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) { html += '<div style="height:8px"></div>'; continue; }
+    // Section headings (all caps or ends with colon)
+    if (/^[A-Z][A-Z\s&\/\-]{4,}:?$/.test(line) || (line.endsWith(':') && line.length < 60 && line === line.replace(/[a-z]/g, ''))) {
+      html += `<div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--muted); margin:16px 0 6px;">${esc(line.replace(':',''))}</div>`;
+    }
+    // Bullet points
+    else if (/^[\-\•\*\–]/.test(line)) {
+      html += `<div style="display:flex; gap:8px; margin:3px 0;"><span style="color:var(--accent); flex-shrink:0;">·</span><span>${esc(line.replace(/^[\-\•\*\–]\s*/,''))}</span></div>`;
+    }
+    // Regular paragraph
+    else {
+      html += `<p style="margin:0 0 6px 0;">${esc(line)}</p>`;
+    }
+  }
+  return html;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function openDrawer(jobId) {
+  document.getElementById('jd-overlay').style.display = 'block';
+  const drawer = document.getElementById('jd-drawer');
+  drawer.style.display = 'flex';
+  document.getElementById('drawer-title').textContent = 'Loading…';
+  document.getElementById('drawer-meta').textContent = '';
+  document.getElementById('drawer-salary').textContent = '';
+  document.getElementById('drawer-body').innerHTML = '<div style="color:var(--muted); padding:20px 0;">Fetching job description…</div>';
+  document.body.style.overflow = 'hidden';
+
+  const res = await fetch(`/jobs/${jobId}/description`);
+  const d = await res.json();
+
+  document.getElementById('drawer-title').textContent = d.title;
+  document.getElementById('drawer-meta').textContent = `${d.company}  ·  ${d.location}`;
+  document.getElementById('drawer-salary').textContent = d.salary || '';
+  document.getElementById('drawer-link').href = d.url;
+  document.getElementById('drawer-body').innerHTML = formatJD(d.description);
+}
+
+function closeDrawer() {
+  document.getElementById('jd-drawer').style.display = 'none';
+  document.getElementById('jd-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ── Prepare Docs (AJAX + polling) ──────────────────────────
+const STEP_LABELS = {
+  pending:                '⏳ Queued…',
+  tailoring:              '✍️ Tailoring docs…',
+  awaiting_confirmation:  '✅ Docs ready!',
+  applying:               '🚀 Applying…',
+  applied:                '✅ Applied!',
+  failed:                 '❌ Failed',
+};
+
+async function prepareDocs(jobId, btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳ Starting…';
+  btn.style.opacity = '0.7';
+
+  const res = await fetch(`/jobs/${jobId}/prepare`, { method: 'POST' });
+  if (!res.ok) { btn.textContent = '❌ Error'; btn.disabled = false; return; }
+
+  pollStatus(jobId, btn);
+}
+
+function pollStatus(jobId, btn) {
+  const interval = setInterval(async () => {
+    const res = await fetch(`/jobs/${jobId}/prepare/status`);
+    const d = await res.json();
+
+    btn.textContent = STEP_LABELS[d.status] || `⏳ ${d.status}…`;
+
+    if (d.status === 'awaiting_confirmation' || d.status === 'applied') {
+      clearInterval(interval);
+      btn.style.opacity = '1';
+      if (d.app_id) {
+        const link = document.createElement('a');
+        link.href = `/applications/${d.app_id}`;
+        link.className = 'btn btn-primary';
+        link.style.cssText = 'font-size:12px; padding:5px 12px; width:100%; text-align:center; display:block;';
+        link.textContent = 'View Docs →';
+        btn.replaceWith(link);
+      }
+    }
+
+    if (d.status === 'failed') {
+      clearInterval(interval);
+      btn.textContent = '❌ Failed — retry?';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }, 2500);
+}
+</script>
 
 {% endblock %}

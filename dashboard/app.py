@@ -152,11 +152,48 @@ def jobs_list(request: Request, grade: str = "", db: Session = Depends(get_db)):
 
 @app.post("/jobs/{job_id}/prepare")
 def prepare_job(job_id: int, db: Session = Depends(get_db)):
-    """Trigger asset preparation for a job directly from the dashboard."""
+    """Trigger asset preparation — returns JSON for AJAX or redirects for plain POST."""
     import subprocess, sys
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
     subprocess.Popen([sys.executable, "main.py", "prepare", str(job_id)],
                      cwd=str(BASE_DIR))
-    return RedirectResponse(url=f"/jobs", status_code=303)
+    from fastapi.responses import JSONResponse
+    return JSONResponse({"status": "started", "job_id": job_id})
+
+
+@app.get("/jobs/{job_id}/prepare/status")
+def prepare_status(job_id: int, db: Session = Depends(get_db)):
+    """Poll preparation progress for a job."""
+    from fastapi.responses import JSONResponse
+    app_record = db.query(Application).filter(Application.job_id == job_id).order_by(Application.id.desc()).first()
+    docs = db.query(TailoredDocument).filter(TailoredDocument.job_id == job_id).all()
+    has_resume = any(d.doc_type == "cover_letter" or d.doc_type == "resume" for d in docs)
+    if app_record:
+        return JSONResponse({
+            "status": app_record.status,
+            "app_id": app_record.id,
+            "has_docs": has_resume,
+        })
+    return JSONResponse({"status": "pending", "app_id": None, "has_docs": False})
+
+
+@app.get("/jobs/{job_id}/description")
+def job_description(job_id: int, db: Session = Depends(get_db)):
+    """Return job description as JSON for the drawer."""
+    from fastapi.responses import JSONResponse
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return JSONResponse({
+        "title": job.title,
+        "company": job.company,
+        "location": job.location,
+        "salary": job.salary_text or "",
+        "description": job.description or "",
+        "url": job.url or "",
+    })
 
 
 @app.get("/applications", response_class=HTMLResponse)
